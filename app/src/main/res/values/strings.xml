@@ -1,0 +1,16 @@
+<resources>
+    <string name="app_name">Contacts</string>
+    <string name="name">Имя:</string>
+    <string name="last_name">Фамилия:</string>
+    <string name="phone_number">Телефон:</string>
+    <string name="position">Должность:</string>
+    <string name="work_phone_number">Рабочий телефон:</string>
+    <string name="photo">Фото</string>
+    <string name="phone">Телефон</string>
+    <string name="position_hint">Должность</string>
+    <string name="hint_work_phone">Рабочий телефон</string>
+    <string name="hint_first_name">Имя</string>
+    <string name="hint_last_name">Фамилия</string>
+    <string name="button_save">Сохранить</string>
+    <string name="employee">Сотрудник</string>
+</resources>
