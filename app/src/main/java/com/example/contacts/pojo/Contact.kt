@@ -18,11 +18,10 @@ data class Contact(
     var imgUri: String? = null,
 
     var isEmployee: Boolean? = null,
-
+    
     var position: String? = null,
 
     var personalPhone: String? = null,
 
     var workPhone: String? = null
-
 )

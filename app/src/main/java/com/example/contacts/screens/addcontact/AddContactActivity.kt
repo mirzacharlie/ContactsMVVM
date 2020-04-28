@@ -16,6 +16,9 @@ import coil.api.load
 import com.example.contacts.R
 import com.example.contacts.data.AppDatabase
 import com.example.contacts.pojo.Contact
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_add_contact.*
 import java.io.File
 import java.io.FileOutputStream
@@ -82,6 +85,11 @@ class AddContactActivity : AppCompatActivity() {
         } else {
             isNew = true
         }
+
+        viewmodel.getNewImgUri().observe(this,  Observer {
+            imgUri = it
+            ivPhoto.load(imgUri)
+        })
     }
 
     fun onClickSaveContact(view: View) {
@@ -106,39 +114,16 @@ class AddContactActivity : AppCompatActivity() {
         }
     }
 
-//    fun onClickChangePhoto(view: View) {
-//        val intent = Intent(Intent.ACTION_PICK)
-//        intent.type = "image/*"
-//        startActivityForResult(intent, IMG_REQUEST_CODE)
-//    }
-
     fun onClickChangePhoto(view: View) {
         val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
         intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
         startActivityForResult(intent, IMG_REQUEST_CODE)
     }
 
-
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (resultCode == Activity.RESULT_OK && requestCode == IMG_REQUEST_CODE) {
-
-            val copy = createImageFile()
-            imgUri = Uri.fromFile(copy).toString()
-
-            val inStream: InputStream? = contentResolver.openInputStream(Uri.parse(data?.dataString))
-            val outStream: OutputStream = FileOutputStream(copy)
-            val buf = ByteArray(1024)
-            var len: Int = 0
-            if (inStream != null) {
-                while (inStream.read(buf).also { len = it } > 0) {
-                    outStream.write(buf, 0, len)
-                }
-            }
-            outStream.close()
-            inStream?.close()
-
-            ivPhoto.load(imgUri)
+            viewmodel.setNewPhotoUri(Uri.parse(data?.dataString), this)
         }
     }
 
@@ -157,11 +142,4 @@ class AddContactActivity : AppCompatActivity() {
         return false
     }
 
-    private fun createImageFile(): File? {
-        // Create an image file name
-        val timeStamp: String = SimpleDateFormat("yyyyMMddHHmmss").format(Date())
-        val fileName = "JPEG_" + timeStamp + "_"
-        val storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES)
-        return File.createTempFile(fileName, ".jpg", storageDir)
-    }
 }
