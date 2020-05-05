@@ -1,24 +1,19 @@
 package com.example.contacts.screens.contactlist
 
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.ItemTouchHelper
+import androidx.recyclerview.widget.RecyclerView
 import com.example.contacts.R
 import com.example.contacts.adapters.ContactAdapter
 import com.example.contacts.data.AppDatabase
 import com.example.contacts.screens.addcontact.AddContactActivity
 import kotlinx.android.synthetic.main.activity_main.*
-import java.io.File
-import java.io.FileOutputStream
-import java.io.InputStream
-import java.io.OutputStream
-import java.net.URI
-import java.util.logging.Level.parse
 
 class ContactListActivity : AppCompatActivity() {
 
@@ -45,6 +40,31 @@ class ContactListActivity : AppCompatActivity() {
                 startActivity(intent)
             }
         }
+
+        val itemTouchHelper =
+            ItemTouchHelper(object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
+                override fun onMove(
+                    recyclerView: RecyclerView,
+                    viewHolder: RecyclerView.ViewHolder,
+                    target: RecyclerView.ViewHolder
+                ): Boolean {
+                    return false
+                }
+
+                override fun onSwiped(
+                    viewHolder: RecyclerView.ViewHolder,
+                    direction: Int
+                ) {
+                    removeContact(viewHolder.adapterPosition)
+                }
+
+                private fun removeContact(position: Int) {
+                    val contact = adapter.contacts[position]
+                    viewmodel.deleteContact(contact)
+                }
+            })
+
+        itemTouchHelper.attachToRecyclerView(rvContacts)
 
         viewmodel.contactList.observe(this, Observer {
             adapter.contacts = it

@@ -4,32 +4,24 @@ import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.os.Environment
 import android.provider.MediaStore
 import android.util.Log
+import android.util.Patterns
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import coil.api.load
+import coil.transform.RoundedCornersTransformation
 import com.example.contacts.R
 import com.example.contacts.data.AppDatabase
 import com.example.contacts.pojo.Contact
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_add_contact.*
-import java.io.File
-import java.io.FileOutputStream
-import java.io.InputStream
-import java.io.OutputStream
-import java.text.SimpleDateFormat
-import java.util.*
 
 class AddContactActivity : AppCompatActivity() {
 
-    val IMG_REQUEST_CODE = 111
+    private val IMG_REQUEST_CODE = 111
 
     lateinit var db: AppDatabase
     lateinit var viewmodel: AddContactViewModel
@@ -69,11 +61,22 @@ class AddContactActivity : AppCompatActivity() {
                 etLastName.setText(it.lastName)
                 etPersonalPhone.setText(it.personalPhone)
 
-                ivPhoto.load(it.imgUri) {
-                    placeholder(R.drawable.avatar)
+                imgUri = it.imgUri
+                if (imgUri != null){
+                    ivPhoto.load(imgUri) {
+                        placeholder(R.drawable.avatar)
+                        size(512, 512)
+                        transformations(RoundedCornersTransformation(40f))
+                    }
+                } else {
+                    ivPhoto.load(R.drawable.avatar){
+                    size(512, 512)
+                    transformations(RoundedCornersTransformation(40f))
+                    }
                 }
 
-                if (it.isEmployee == true) {
+
+                if (it.type == Contact.TYPE_EMPLOYEE) {
                     cbEmployee.isChecked = true
                     etPosition.visibility = View.VISIBLE
                     etWorkPhone.visibility = View.VISIBLE
@@ -86,7 +89,7 @@ class AddContactActivity : AppCompatActivity() {
             isNew = true
         }
 
-        viewmodel.getNewImgUri().observe(this,  Observer {
+        viewmodel.getNewImgUri().observe(this, Observer {
             imgUri = it
             ivPhoto.load(imgUri)
         })
@@ -99,10 +102,17 @@ class AddContactActivity : AppCompatActivity() {
             contact.firstName = etFirstName.text.toString().trim()
             contact.lastName = etLastName.text.toString().trim()
             contact.personalPhone = etPersonalPhone.text.toString().trim()
-            contact.isEmployee = cbEmployee.isChecked
-            contact.position = etPosition.text.toString().trim()
-            contact.workPhone = etWorkPhone.text.toString().trim()
             contact.imgUri = imgUri
+
+            if (cbEmployee.isChecked){
+                contact.type =  Contact.TYPE_EMPLOYEE
+                contact.position = etPosition.text.toString().trim()
+                contact.workPhone = etWorkPhone.text.toString().trim()
+            } else {
+                contact.type =  Contact.TYPE_FRIEND
+                contact.position = null
+                contact.workPhone = null
+            }
 
             if (isNew) {
                 contact.id = null

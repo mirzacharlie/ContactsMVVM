@@ -29,5 +29,18 @@ class ContactMainViewModel(application: Application) : AndroidViewModel(applicat
         compositeDisposable.dispose()
     }
 
+    fun deleteContact(contact: Contact) {
+        db.contactDao().deleteContact(contact)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({
+            }, {
+                Log.d("DATA_DELETE", "Is failed: ${it.message}")
+            }).let {
+                compositeDisposable.add(it)
+                Log.d("DATA_DELETE", "is success")
+            }
+    }
+
 }
 

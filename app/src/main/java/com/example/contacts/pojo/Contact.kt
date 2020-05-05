@@ -17,11 +17,16 @@ data class Contact(
 
     var imgUri: String? = null,
 
-    var isEmployee: Boolean? = null,
+    var type: Int? = null,
     
     var position: String? = null,
 
     var personalPhone: String? = null,
 
     var workPhone: String? = null
-)
+){
+   companion object {
+       const val TYPE_EMPLOYEE = 1
+       const val TYPE_FRIEND = 0
+   }
+}

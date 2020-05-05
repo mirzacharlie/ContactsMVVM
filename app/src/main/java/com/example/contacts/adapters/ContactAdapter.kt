@@ -5,6 +5,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import coil.api.load
+import coil.transform.RoundedCornersTransformation
 import com.example.contacts.R
 import com.example.contacts.pojo.Contact
 import com.squareup.picasso.Picasso
@@ -32,27 +33,41 @@ class ContactAdapter : RecyclerView.Adapter<ContactAdapter.ContactViewHolder>() 
             itemView.setOnClickListener { onContactClickListener?.onContactClick(position) }
             val contact = contacts[position]
 
-            ivPhoto.load(contact.imgUri){
-                placeholder(R.drawable.avatar)
+            if (contact.imgUri != null){
+                ivPhoto.load(contact.imgUri) {
+                    placeholder(R.drawable.avatar)
+                    size(196, 196)
+                    transformations(RoundedCornersTransformation(20f))
+                }
+            } else {
+                ivPhoto.load(R.drawable.avatar){
+                transformations(RoundedCornersTransformation(20f))
+                }
             }
 
             tvFirstName.text = contact.firstName
             tvLastName.text = contact.lastName
             tvPersonalPhone.text = contact.personalPhone
 
-            if(contact.isEmployee == true){
+            if(contact.type == Contact.TYPE_EMPLOYEE){
                 line.visibility = View.VISIBLE
                 labelPosition.visibility = View.VISIBLE
                 labelWorkPhone.visibility = View.VISIBLE
-
                 tvPosition.visibility = View.VISIBLE
                 tvWorkPhone.visibility = View.VISIBLE
 
                 tvPosition.text = contact.position
                 tvWorkPhone.text = contact.workPhone
+
+            } else if (contact.type == Contact.TYPE_FRIEND){
+                line.visibility = View.GONE
+                labelPosition.visibility = View.GONE
+                labelWorkPhone.visibility = View.GONE
+                tvPosition.visibility = View.GONE
+                tvWorkPhone.visibility = View.GONE
+
             }
         }
-
     }
 
     inner class ContactViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView){
